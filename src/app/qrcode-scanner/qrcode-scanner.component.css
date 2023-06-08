@@ -11,8 +11,8 @@ b {
   text-align: center;
 }
 video {
-  height: 50%;
-  width: 50%;
+  max-height: 80%;
+  max-width: 80%;
 }
 #video-container {
   line-height: 0;
