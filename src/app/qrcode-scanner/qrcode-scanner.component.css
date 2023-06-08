@@ -1,7 +1,19 @@
 div {
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
+h1 {
+  text-align: center;
+}
+b {
+  text-align: center;
+}
+video {
+  height: 50%;
+  width: 50%;
+}
 #video-container {
   line-height: 0;
 }
