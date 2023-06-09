@@ -38,7 +38,7 @@ export class QrCodeScannerComponent implements OnInit {
       const videoWidth = this.video.videoWidth;
       const videoHeight = this.video.videoHeight;
       const minDimension = Math.min(videoWidth, videoHeight);
-      const reduction = 0.43;
+      const reduction = 0.38;
       const scanRegionSize = minDimension * (1 - 2 * reduction);
       const x = (videoWidth - scanRegionSize) / 2;
       const y = (videoHeight - scanRegionSize) / 2;
