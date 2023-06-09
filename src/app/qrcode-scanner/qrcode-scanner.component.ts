@@ -31,21 +31,35 @@ export class QrCodeScannerComponent implements OnInit {
       highlightScanRegion: true,
       highlightCodeOutline: true,
     };
-
+    // Calculate the modified scan region
+    const scanRegion = () => {
+      const videoWidth = this.video.videoWidth;
+      const videoHeight = this.video.videoHeight;
+      const minDimension = Math.min(videoWidth, videoHeight);
+      const reduction = 0.4;
+      const scanRegionSize = minDimension * (1 - 2 * reduction);
+      const x = (videoWidth - scanRegionSize) / 2;
+      const y = (videoHeight - scanRegionSize) / 2;
+      const width = scanRegionSize;
+      const height = scanRegionSize;
+      return { x, y, width, height };
+    };
     this.scanner = new QrScanner(
       this.video,
       (result: any) => this.setResult(this.camQrResult, result),
-      scannerOptions as any
+      {
+        ...scannerOptions,
+        calculateScanRegion: scanRegion,
+      } as any
     );
 
+    this.video.addEventListener('loadedmetadata', () => {
+      const scanRegion = document.createElement('div');
+      scanRegion.classList.add('custom-scan-region');
+      this.videoContainer.appendChild(scanRegion);
+    });
     this.scanner.start().then(() => {
-      QrScanner.listCameras(true).then((cameras: any[]) =>
-        cameras.forEach((camera: any) => {
-          const option = document.createElement('option');
-          option.value = camera.id;
-          option.text = camera.label;
-        })
-      );
+      QrScanner.listCameras(true).then((cameras: any[]) => {});
     });
   }
 
