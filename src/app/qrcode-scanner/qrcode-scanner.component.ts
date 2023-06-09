@@ -25,18 +25,20 @@ export class QrCodeScannerComponent implements OnInit {
 
     const scannerOptions = {
       onDecodeError: (error: string) => {
-        (this.camQrResult as any).textContent = error; // Cast to 'any'
+        (this.camQrResult as any).textContent = error;
         this.camQrResult.style.color = 'inherit';
       },
       highlightScanRegion: true,
       highlightCodeOutline: true,
+      scanRegionHighlightStyle: 'example-style-2', // Add this line
     };
+
     // Calculate the modified scan region
     const scanRegion = () => {
       const videoWidth = this.video.videoWidth;
       const videoHeight = this.video.videoHeight;
       const minDimension = Math.min(videoWidth, videoHeight);
-      const reduction = 0.4;
+      const reduction = 0.35;
       const scanRegionSize = minDimension * (1 - 2 * reduction);
       const x = (videoWidth - scanRegionSize) / 2;
       const y = (videoHeight - scanRegionSize) / 2;
@@ -53,11 +55,6 @@ export class QrCodeScannerComponent implements OnInit {
       } as any
     );
 
-    this.video.addEventListener('loadedmetadata', () => {
-      const scanRegion = document.createElement('div');
-      scanRegion.classList.add('custom-scan-region');
-      this.videoContainer.appendChild(scanRegion);
-    });
     this.scanner.start().then(() => {
       QrScanner.listCameras(true).then((cameras: any[]) =>
         cameras.forEach((camera: any) => {
@@ -80,6 +77,4 @@ export class QrCodeScannerComponent implements OnInit {
       100
     );
   }
-
-  // Add event listeners and other methods here based on the remaining code
 }
