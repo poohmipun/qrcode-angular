@@ -10,34 +10,18 @@ export class QrCodeScannerComponent implements OnInit {
   private scanner: QrScanner;
   video: HTMLVideoElement;
   videoContainer: HTMLElement;
-  camHasCamera: HTMLElement;
-  camList: HTMLSelectElement;
-  camHasFlash: HTMLElement;
-  flashToggle: HTMLElement;
-  flashState: HTMLElement;
   camQrResult: HTMLElement;
   camQrResultTimestamp: HTMLElement;
-  fileSelector: HTMLInputElement;
-  fileQrResult: HTMLElement;
 
   constructor() {}
 
   ngOnInit(): void {
     this.video = document.getElementById('qr-video') as HTMLVideoElement;
     this.videoContainer = document.getElementById('video-container')!;
-    this.camHasCamera = document.getElementById('cam-has-camera')!;
-    this.camList = document.getElementById('cam-list') as HTMLSelectElement;
-    this.camHasFlash = document.getElementById('cam-has-flash')!;
-    this.flashToggle = document.getElementById('flash-toggle')!;
-    this.flashState = document.getElementById('flash-state')!;
     this.camQrResult = document.getElementById('cam-qr-result')!;
     this.camQrResultTimestamp = document.getElementById(
       'cam-qr-result-timestamp'
     )!;
-    this.fileSelector = document.getElementById(
-      'file-selector'
-    ) as HTMLInputElement;
-    this.fileQrResult = document.getElementById('file-qr-result')!;
 
     const scannerOptions = {
       onDecodeError: (error: string) => {
@@ -54,49 +38,17 @@ export class QrCodeScannerComponent implements OnInit {
       scannerOptions as any
     );
 
-    const updateFlashAvailability = () => {
-      this.scanner.hasFlash().then((hasFlash: boolean) => {
-        this.camHasFlash.textContent = hasFlash.toString();
-        this.flashToggle.style.display = hasFlash ? 'inline-block' : 'none';
-      });
-    };
-
-    // Inside the ngOnInit() method
-    const highlightStyleSelect = document.getElementById(
-      'scan-region-highlight-style-select'
-    ) as HTMLSelectElement;
-    highlightStyleSelect.addEventListener('change', () => {
-      const selectedStyle = highlightStyleSelect.value;
-      this.updateHighlightStyle(selectedStyle);
-    });
-
     this.scanner.start().then(() => {
-      updateFlashAvailability();
       QrScanner.listCameras(true).then((cameras: any[]) =>
         cameras.forEach((camera: any) => {
           const option = document.createElement('option');
           option.value = camera.id;
           option.text = camera.label;
-          this.camList.add(option);
         })
       );
     });
-
-    QrScanner.hasCamera().then((hasCamera: boolean) => {
-      this.camHasCamera.textContent = hasCamera.toString();
-    });
   }
-  updateHighlightStyle(style: string) {
-    // Remove any existing highlight styles
-    this.videoContainer.classList.remove('example-style-1', 'example-style-2');
 
-    // Add the selected highlight style
-    if (style === 'example-style-1') {
-      this.videoContainer.classList.add('example-style-1');
-    } else if (style === 'example-style-2') {
-      this.videoContainer.classList.add('example-style-2');
-    }
-  }
   setResult(label: HTMLElement, result: { data: string }) {
     console.log(result.data);
     label.textContent = result.data;
