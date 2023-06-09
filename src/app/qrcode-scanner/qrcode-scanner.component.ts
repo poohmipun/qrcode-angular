@@ -59,7 +59,13 @@ export class QrCodeScannerComponent implements OnInit {
       this.videoContainer.appendChild(scanRegion);
     });
     this.scanner.start().then(() => {
-      QrScanner.listCameras(true).then((cameras: any[]) => {});
+      QrScanner.listCameras(true).then((cameras: any[]) =>
+        cameras.forEach((camera: any) => {
+          const option = document.createElement('option');
+          option.value = camera.id;
+          option.text = camera.label;
+        })
+      );
     });
   }
 
@@ -67,7 +73,7 @@ export class QrCodeScannerComponent implements OnInit {
     console.log(result.data);
     label.textContent = result.data;
     this.camQrResultTimestamp.textContent = new Date().toString();
-    label.style.color = 'teal';
+    label.style.color = 'green';
     clearTimeout((label as any).highlightTimeout);
     (label as any).highlightTimeout = setTimeout(
       () => ((label as any).style.color = 'inherit'),
