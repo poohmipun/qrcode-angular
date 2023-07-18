@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import QrScanner from 'qr-scanner';
 
 @Component({
@@ -8,35 +8,34 @@ import QrScanner from 'qr-scanner';
 })
 export class QrCodeScannerComponent implements OnInit {
   private scanner: QrScanner;
-  video: HTMLVideoElement;
-  videoContainer: HTMLElement;
-  camQrResult: HTMLElement;
-  camQrResultTimestamp: HTMLElement;
+  @ViewChild('qrVideo', { static: true }) qrVideo: ElementRef<HTMLVideoElement>;
+  @ViewChild('videoContainer', { static: true })
+  videoContainer: ElementRef<HTMLElement>;
+  @ViewChild('camQrResult', { static: true })
+  camQrResult: ElementRef<HTMLElement & { highlightTimeout: NodeJS.Timeout }>;
+  @ViewChild('camQrResultTimestamp', { static: true })
+  camQrResultTimestamp: ElementRef<
+    HTMLElement & { highlightTimeout: NodeJS.Timeout }
+  >;
 
   constructor() {}
 
   ngOnInit(): void {
-    this.video = document.getElementById('qr-video') as HTMLVideoElement;
-    this.videoContainer = document.getElementById('video-container')!;
-    this.camQrResult = document.getElementById('cam-qr-result')!;
-    this.camQrResultTimestamp = document.getElementById(
-      'cam-qr-result-timestamp'
-    )!;
+    console.log(QrScanner);
 
     const scannerOptions = {
       onDecodeError: (error: string) => {
-        (this.camQrResult as any).textContent = error;
-        this.camQrResult.style.color = 'inherit';
+        this.camQrResult.nativeElement.textContent = error;
+        this.camQrResult.nativeElement.style.color = 'inherit';
       },
       highlightScanRegion: true,
       highlightCodeOutline: true,
-      scanRegionHighlightStyle: 'example-style-2', // Add this line
     };
 
     // Calculate the modified scan region
     const scanRegion = () => {
-      const videoWidth = this.video.videoWidth;
-      const videoHeight = this.video.videoHeight;
+      const videoWidth = this.qrVideo.nativeElement.videoWidth;
+      const videoHeight = this.qrVideo.nativeElement.videoHeight;
       const minDimension = Math.min(videoWidth, videoHeight);
       const reduction = 0.35;
       const scanRegionSize = minDimension * (1 - 2 * reduction);
@@ -47,8 +46,8 @@ export class QrCodeScannerComponent implements OnInit {
       return { x, y, width, height };
     };
     this.scanner = new QrScanner(
-      this.video,
-      (result: any) => this.setResult(this.camQrResult, result),
+      this.qrVideo.nativeElement,
+      (result: any) => this.setResult(this.camQrResult.nativeElement, result),
       {
         ...scannerOptions,
         calculateScanRegion: scanRegion,
@@ -56,7 +55,7 @@ export class QrCodeScannerComponent implements OnInit {
     );
 
     this.scanner.start().then(() => {
-      QrScanner.listCameras(true).then((cameras: any[]) =>
+      QrScanner.listCameras().then((cameras: any[]) =>
         cameras.forEach((camera: any) => {
           const option = document.createElement('option');
           option.value = camera.id;
@@ -66,15 +65,18 @@ export class QrCodeScannerComponent implements OnInit {
     });
   }
 
-  setResult(label: HTMLElement, result: { data: string }) {
+  setResult(
+    label: HTMLElement & { highlightTimeout: NodeJS.Timeout },
+    result: { data: string }
+  ) {
     console.log(result.data);
     label.textContent = result.data;
-    this.camQrResultTimestamp.textContent = new Date().toString();
+    this.camQrResultTimestamp.nativeElement.textContent = new Date().toString();
     label.style.color = 'green';
-    clearTimeout((label as any).highlightTimeout);
-    (label as any).highlightTimeout = setTimeout(
-      () => ((label as any).style.color = 'inherit'),
+    clearTimeout(label.highlightTimeout);
+    label.highlightTimeout = setTimeout(
+      () => (label.style.color = 'inherit'),
       100
-    );
+    ) as NodeJS.Timeout;
   }
 }
